@@ -15,9 +15,6 @@
 
 #include "ZPlayer.generated.h"
 
-
-// To start a build, press CTRL + ALT + F11 
-
 class USpringArmComponent;
 class UCameraComponent;
 class UAnimMontage;
@@ -69,10 +66,8 @@ public:
 	UFUNCTION(BlueprintPure, BlueprintInternalUseOnly)
 		inline float GetRewindTime() const { return m_rewindTime; }
 
-	//UFUNCTION(BlueprintPure, BlueprintInternalUseOnly)
 	inline bool IsSwingingForward() const {	return isSwingingForward; }
 	
-	//UFUNCTION(BlueprintPure, BlueprintInternalUseOnly)
 	inline bool IsSwingingBackward() const { return isSwingingBackward; }
 
 	inline bool IsOnRightWall() const { return wallRunComp->IsOnRightWall(); }
@@ -114,13 +109,6 @@ protected:
 	UFUNCTION(BlueprintCallable)
 		void StopRewind();
 
-
-	UFUNCTION(BlueprintCallable)
-		void startTimer(bool canCountDown);
-	
-	UFUNCTION(BlueprintCallable)
-		void endTimer();
-
 	UFUNCTION(BlueprintCallable)
 		void startTimerTimeline(bool canCountDown);
 	
@@ -142,9 +130,6 @@ protected:
 	void PlayBackwardsMontage_Implementation(UAnimMontage* montage, float playRate);
 
 private:
-
-	UFUNCTION()
-		void timerCount(bool canCountDown);
 
 	UFUNCTION()
 		void timerTimelineCallback(float val);
@@ -175,17 +160,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swinging")
 		bool isSwingingBackward = false;
-
-	/*
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dive")
-		bool diveOverrideZ = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dive")
-		bool secondDive = true;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dive")
-		bool moveForwardOnFirst = false;
-	*/
 
 	/* Camera */
 

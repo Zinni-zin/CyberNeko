@@ -10,8 +10,6 @@
 #include <GameFramework/SpringArmComponent.h>
 #include <Camera/CameraComponent.h>
 
-// #include <Components/TimelineComponent.h>
-
 #include "../Public/Components/AC_TimeRewind.h"
 
 // Sets default values
@@ -56,11 +54,6 @@ void AZPlayer::BeginPlay()
 		timerTimeline->SetTimelineFinishedFunc(m_onTimelineFinishedCallback);
 		timerTimeline->SetTimelineLengthMode(ETimelineLengthMode::TL_TimelineLength);
 		timerTimeline->Play();
-
-		/*
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue,
-			FString::Printf(TEXT("Time Limit: %f"), timerTimeline->GetTimelineLength()));
-		*/
 	}
 	else if (GEngine)
 	{
@@ -77,7 +70,8 @@ void AZPlayer::Tick(float DeltaTime)
 
 void AZPlayer::MoveFAB(float val)
 {
-	if (!Controller && val == 0) return;
+	if (!Controller && val == 0)
+		return;
 
 	const FRotator rotation = Controller->GetControlRotation();
 	const FRotator yawRotation(0, rotation.Yaw, 0);
@@ -89,7 +83,8 @@ void AZPlayer::MoveFAB(float val)
 
 void AZPlayer::MoveHoriz(float val)
 {
-	if (!Controller && val == 0) return;
+	if (!Controller && val == 0)
+		return;
 
 	const FRotator rotation = Controller->GetControlRotation();
 	const FRotator yawRotation(0, rotation.Yaw, 0);
@@ -105,19 +100,11 @@ void AZPlayer::CharJump()
 
 	const bool isFalling = GetCharacterMovement()->IsFalling();
 
-	if (isFalling) return;
+	if (isFalling)
+		return;
 
-	// if ((m_jumpCount == 0 && isFalling) || m_jumpCount >= m_maxJumpCount) return;
-
-	// ++m_jumpCount;
-	
 	Jump();
 
-	/*
-	if (isFalling && secondJump.montage)
-		PlayAnimMontage(secondJump.montage, secondJump.playRate);
-	else if (firstJump.montage)
-	*/
 	PlayAnimMontage(firstJump.montage, firstJump.playRate);	
 }
 
@@ -147,37 +134,10 @@ void AZPlayer::Dive()
 	launchVec *= (isFalling) ? 1.f :
 		diveForwardGroundMultiplier;
 
-	// FVector firstLaunchVec = moveForwardOnFirst ?
-	//	FVector(launchVec.X, launchVec.Y, diveHeight) : FVector(0.f, 0.f, diveHeight);
-
 	bool overrideZ = isFalling && GetVelocity().Z < 0;
 
 	ICharacterActions::Execute_CharDived(GetMesh()->GetAnimInstance(), false);
 	LaunchCharacter(FVector(launchVec.X, launchVec.Y, diveHeight), false, overrideZ);
-
-	/*
-	FTimerHandle launchDelay;
-
-	if (secondDive)
-	{
-		FTimerDelegate launchDelagate;
-		launchDelagate.BindLambda([&]()
-			{
-				
-				//FVector launchVec = GetActorForwardVector() * diveBoost;
-				//launchVec *= (isFalling) ? 1.f :
-				//	diveForwardGroundMultiplier;
-				
-				launchVec = GetActorForwardVector() * diveBoost;
-				launchVec *= (isFalling) ? 1.f :
-					diveForwardGroundMultiplier;
-
-				LaunchCharacter(FVector(launchVec.X, launchVec.Y, 0.f), false, false);
-			});
-
-		GetWorld()->GetTimerManager().SetTimer(launchDelay, launchDelagate, 0.05f, false);
-	}
-	*/
 
 	StopAnimMontage(GetCurrentMontage());
 }
@@ -201,7 +161,6 @@ void AZPlayer::CamZoom(bool isZoomingIn)
 
 void AZPlayer::StartRewind()
 {
-	// startTimer(true);
 	startTimerTimeline(true);
 
 	auto rewindComponents = UAC_TimeRewind::GetAllTimeRewindComponents();
@@ -210,81 +169,21 @@ void AZPlayer::StartRewind()
 		if (IsValid(rewindComp.Get()))
 			ICharacterActions::Execute_TimeRewind(rewindComp, true, m_rewindTime);
 
-	//ICharacterActions::Execute_TimeRewind(timeRewindComponent, true, m_rewindTime);
 	ICharacterActions::Execute_TimeRewind(GetMesh()->GetAnimInstance(), true, 0.f);
 }
 
 void AZPlayer::StopRewind()
 {
-	// endTimer();
 	endTimerTimeline();
-	//ICharacterActions::Execute_TimeRewind(timeRewindComponent, false, GetRewindTimeAsFloat());
-	// ICharacterActions::Execute_TimeRewind(timeRewindComponent, false, m_rewindTime);
-
+	
 	for (auto rewindComp : UAC_TimeRewind::GetAllTimeRewindComponents())
 		if (IsValid(rewindComp.Get()))
 			ICharacterActions::Execute_TimeRewind(rewindComp, false, m_rewindTime);
 
-	// startTimer(false);
 	startTimerTimeline(false);
 	m_isDiving = (GetCharacterMovement()->IsFalling())? m_isDiving : false;
 	
 	ICharacterActions::Execute_TimeRewind(GetMesh()->GetAnimInstance(), false, 0.f);
-}
-
-void AZPlayer::startTimer(bool canCountDown)
-{
-	if (GetWorld()->GetTimerManager().IsTimerActive(m_timerHandle))
-		endTimer();
-	
-	m_timerCountDelegate.BindUFunction(this, "timerCount", canCountDown);
-
-	GetWorld()->GetTimerManager().SetTimer(m_timerHandle, m_timerCountDelegate, 
-		0.01f, true, 0.f);
-}
-
-void AZPlayer::endTimer()
-{
-	GetWorld()->GetTimerManager().ClearTimer(m_timerHandle);
-	m_timerCountDelegate.Unbind();
-}
-
-void AZPlayer::timerCount(bool canCountDown)
-{
-	if (canCountDown)
-	{
-		if (m_milliseconds <= 0)
-		{
-			--m_seconds;
-			m_milliseconds = 100;
-		}
-
-		--m_milliseconds;
-
-		if (m_seconds == 0 && m_milliseconds == 0)
-			endTimer();
-
-		return;
-	}
-	
-	if (m_milliseconds > 99)
-	{
-		++m_seconds;
-		m_milliseconds = 0;
-	}
-
-	float timeLimit = timeRewindComponent->GetTimeLimit();
-	int secondsLimit = (int)timeLimit;
-
-	timeLimit -= secondsLimit;
-
-	if (m_seconds == secondsLimit && m_milliseconds == timeLimit * 100)
-	{
-		endTimer();
-		return;
-	}
-
-	++m_milliseconds;
 }
 
 void AZPlayer::startTimerTimeline(bool canCountDown)
@@ -293,7 +192,6 @@ void AZPlayer::startTimerTimeline(bool canCountDown)
 
 	timerTimeline->SetTimelineLength(timeRewindComponent->GetTimeLimit());
 	timerTimeline->SetNewTime(m_rewindTime);
-	// timerTimeline->SetPlaybackPosition(m_rewindTime, true);
 
 	if (canCountDown)
 		timerTimeline->Reverse();
@@ -313,25 +211,14 @@ void AZPlayer::timerTimelineCallback(float val)
 
 	m_seconds = (int)m_rewindTime;
 	m_milliseconds = (int)((m_rewindTime - m_seconds) * 100);
-
-	/*
-	if (GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow,
-			FString::Printf(TEXT("Rewind Time: %f"), m_rewindTime));
-	*/
 }
 
 void AZPlayer::timerTimelineFinishedCallback()
 {
-	// ICharacterActions::Execute_TimerStopped(timeRewindComponent, m_rewindTime);
-
 	for (auto rewindComp : UAC_TimeRewind::GetAllTimeRewindComponents())
 		if(IsValid(rewindComp.Get()))
 			ICharacterActions::Execute_TimerStopped(rewindComp, m_rewindTime);
 
-	//if (GEngine)
-	//	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red,
-	//		FString::Printf(TEXT("Rewind Timer: %f"), m_rewindTime));
 }
 
 float AZPlayer::GetRewindTimeAsFloat()
@@ -350,7 +237,6 @@ void AZPlayer::Event_OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 
 	if (timeRewindComponent->GetClass()->ImplementsInterface(UCharacterActions::StaticClass()))
 		ICharacterActions::Execute_MontageEnded(timeRewindComponent, Montage, playRate);
-	// Execute_MontageEnded(Cast<ICharacterActions>(timeRewindComponent), Montage, Montage->RateScale);
 }
 
 void AZPlayer::CharDived_Implementation(bool isFinished)
@@ -374,7 +260,6 @@ void AZPlayer::PlayBackwardsMontage_Implementation(UAnimMontage* montage, float 
 	}
 }
 
-// Called to bind functionality to input
 void AZPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
