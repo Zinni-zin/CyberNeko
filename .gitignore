@@ -78,3 +78,12 @@ Content/StarterContent
 Content/Characters/Animations/Movement/xbot
 Content/Characters/Animations/Montages/Movement/xbot
 Content/Characters/Models
+Content/Developers/*
+Content/__ExternalActors__/*
+Content/__ExternalObjects__/*
+Content/Components
+Content/Gamemodes
+Content/Collections
+
+#Platforms
+Platforms/
