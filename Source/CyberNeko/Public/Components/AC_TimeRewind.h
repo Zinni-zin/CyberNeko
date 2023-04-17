@@ -104,9 +104,6 @@ private:
 
 	/* ---- Variables ---- */
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rewind Object")
-		TObjectPtr<USceneComponent> objectToRewind;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rewind Control")
 		bool m_isActive = true;
 
@@ -157,11 +154,3 @@ private:
 	UPROPERTY(BlueprintGetter = HasPlayerDove)
 		bool m_hasPlayerDove = false; // Used for player animations when they dive
 };
-
-// Todo: Make it so player has access to all time rewind components
-// Make it so the player timeline tell time rewinds to stop
-
-// Possibly Todo: add unique pointer of a list that holds all time rewind components
-
-// Possibly Todo: Instead of a list of pointer that holds all the rewind components 
-// Try and get the components in a box around the player (Will depend on the scale of the project)

@@ -45,6 +45,8 @@ void UAC_TimeRewind::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	TObjectPtr<AActor> objectToRewind = GetOwner();
+
 	if (!objectToRewind || !m_isActive)
 		return;
 
@@ -52,7 +54,7 @@ void UAC_TimeRewind::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	if (!m_isRewinding)
 	{
 		FZRewindInfo rewindInfo;
-		rewindInfo.ActorTransform = objectToRewind->GetComponentTransform();
+		rewindInfo.ActorTransform = objectToRewind->GetTransform();
 
 		if (canApplyVelocity)
 		{
@@ -102,8 +104,8 @@ void UAC_TimeRewind::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 
 	if (!m_rewindInfo.IsEmpty())
 	{
-		objectToRewind->SetWorldTransform(m_rewindInfo.Last().ActorTransform);
-		
+		objectToRewind->SetActorTransform(m_rewindInfo.Last().ActorTransform);
+
 		if (canApplyVelocity)
 		{
 			UPrimitiveComponent* pPrimitive = dynamic_cast<UPrimitiveComponent*>(GetOwner());
