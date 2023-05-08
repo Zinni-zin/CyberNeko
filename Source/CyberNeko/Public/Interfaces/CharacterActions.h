@@ -23,6 +23,7 @@ class CYBERNEKO_API ICharacterActions
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	/* Movement */
+
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Movement")
 		void CharJumped(int jumpCount, int maxJumpAmount);
 
@@ -48,10 +49,14 @@ public:
 
 	/* Montages */
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Time")
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Montages")
 		void PlayBackwardsMontage(UAnimMontage* montage, float playRate);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Montages")
 		void MontageEnded(UAnimMontage* montage, float playRate);
 
+	/* Interaction */
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction")
+		void CharInteracted();
 };

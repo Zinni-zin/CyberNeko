@@ -121,9 +121,6 @@ void UAC_TimeRewind::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 		if (montage && GetOwner()->GetClass()->ImplementsInterface(UCharacterActions::StaticClass()))
 			Execute_PlayBackwardsMontage(GetOwner(), montage, m_rewindInfo.Last().MontagePlayRate);
 
-		m_curMoveSpeed = m_rewindInfo.Last().MoveSpeed;
-		m_hasPlayerDove = m_rewindInfo.Last().isDiving;
-
 		m_curRewindInfo = m_rewindInfo.Last();
 
 		m_rewindInfo.PopLast();
@@ -159,12 +156,6 @@ void UAC_TimeRewind::TimerStopped_Implementation(float time)
 void UAC_TimeRewind::reachTimeLimit()
 {
 	m_hasReachedTimeLimit = true;
-
-	/*
-	if (GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow,
-			FString::Printf(TEXT("Rewind Size: %d"), m_rewindInfo.Num()));
-	*/
 }
 
 void UAC_TimeRewind::SetTimeLimit(TArray<UAC_TimeRewind*> timeComponentsToSet,
@@ -172,4 +163,14 @@ void UAC_TimeRewind::SetTimeLimit(TArray<UAC_TimeRewind*> timeComponentsToSet,
 {
 	for (auto timeComp : timeComponentsToSet)
 		timeComp->m_timeLimit = timeLimit;
+}
+
+void UAC_TimeRewind::resetTimeRewind(TArray<UAC_TimeRewind*> timeComponentsToReset)
+{
+	for (TObjectPtr<UAC_TimeRewind> timeComp : timeComponentsToReset)
+	{
+		timeComp->m_isRewinding = false;
+		timeComp->m_hasReachedTimeLimit = false;
+		timeComp->m_rewindInfo.Empty();
+	}
 }

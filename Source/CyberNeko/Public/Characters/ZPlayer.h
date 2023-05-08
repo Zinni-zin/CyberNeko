@@ -118,6 +118,10 @@ protected:
 	UFUNCTION(BlueprintCallable)
 		float GetRewindTimeAsFloat();
 
+	// Resets time rewind objects and timer, then sets a new time limit
+	UFUNCTION(BlueprintCallable)
+		void ChangeTimerLimit(float newTimeLimit);
+
 	UFUNCTION()
 		void Event_OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
@@ -191,6 +195,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Time")
 		UCurveFloat* timerFloatCurve;
 
+	UPROPERTY(EditAnywhere, Category = "Time")
+		float m_timeLimit = 3.f;
+
 	/* Components */
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time")
@@ -212,7 +219,7 @@ private:
 	float m_curMontageRate = 1.f;
 
 	UPROPERTY(BlueprintGetter = GetRewindTime)
-	float m_rewindTime = 0.f;
+		float m_rewindTime = 0.f;
 
 	UPROPERTY(BlueprintGetter = GetSeconds)
 		int m_seconds = 0;

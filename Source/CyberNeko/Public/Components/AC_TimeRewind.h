@@ -82,13 +82,6 @@ public:
 	UFUNCTION(BlueprintPure, BlueprintInternalUseOnly)
 		inline bool IsRewinding() const { return m_isRewinding; }
 
-	// Used for entity animations
-	UFUNCTION(BlueprintPure, BlueprintInternalUseOnly)
-		inline float GetMoveSpeed() const { return m_curMoveSpeed; }
-
-	UFUNCTION(BlueprintPure, BlueprintInternalUseOnly)
-		inline bool HasPlayerDove() const { return m_hasPlayerDove; }
-
 	UFUNCTION(BlueprintPure, BlueprintInternalUseOnly)
 		inline FZRewindInfo GetCurrentRewindInfo() const { return m_curRewindInfo; }
 
@@ -96,13 +89,17 @@ public:
 		static void SetTimeLimit(TArray<UAC_TimeRewind*> timeComponentsToSet, 
 								 float timeLimit);
 
+	static void resetTimeRewind(TArray<UAC_TimeRewind*> timeComponentsToSet);
+
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTimeRewindStart);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTimeRewindStop);
+
 private:
 	UFUNCTION()
 	void reachTimeLimit();
 
 	/* ---- Variables ---- */
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rewind Control")
 		bool m_isActive = true;
@@ -132,25 +129,18 @@ protected:
 private:
 	TDeque<FZRewindInfo> m_rewindInfo;
 
-	FTimerHandle m_timerHandle;
-
 	TObjectPtr<UAnimMontage> m_pCurRewindMontage = nullptr;
+	float m_montagePlayRate = 1.f;
+
+	FTimerHandle m_timerHandle;
 
 	static TArray<TObjectPtr<UAC_TimeRewind>> m_rewindComponents;
 
 	UPROPERTY(BlueprintGetter = IsRewinding)
 		bool m_isRewinding = false;
 
-	bool m_hasReachedTimeLimit = false;
-
-	float m_montagePlayRate = 1.f;
-
 	UPROPERTY(BlueprintGetter = GetCurrentRewindInfo)
 		FZRewindInfo m_curRewindInfo;
 
-	UPROPERTY(BlueprintGetter = GetMoveSpeed)
-		float m_curMoveSpeed = 0.f; // Used for entity animations
-
-	UPROPERTY(BlueprintGetter = HasPlayerDove)
-		bool m_hasPlayerDove = false; // Used for player animations when they dive
+	bool m_hasReachedTimeLimit = false;
 };

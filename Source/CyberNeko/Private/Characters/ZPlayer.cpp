@@ -49,7 +49,7 @@ void AZPlayer::BeginPlay()
 
 	if (timerFloatCurve)
 	{
-		timerTimeline->SetTimelineLength(timeRewindComponent->GetTimeLimit());
+		timerTimeline->SetTimelineLength(m_timeLimit);
 		timerTimeline->AddInterpFloat(timerFloatCurve, m_onTimerTimelineUpdate);
 		timerTimeline->SetTimelineFinishedFunc(m_onTimelineFinishedCallback);
 		timerTimeline->SetTimelineLengthMode(ETimelineLengthMode::TL_TimelineLength);
@@ -58,7 +58,7 @@ void AZPlayer::BeginPlay()
 	else if (GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red,
-			FString::Printf(TEXT("No float curve!"), m_rewindTime));
+			FString::Printf(TEXT("No float curve!")));
 	}	
 }
 
@@ -190,7 +190,7 @@ void AZPlayer::startTimerTimeline(bool canCountDown)
 {
 	endTimerTimeline();
 
-	timerTimeline->SetTimelineLength(timeRewindComponent->GetTimeLimit());
+	timerTimeline->SetTimelineLength(m_timeLimit);
 	timerTimeline->SetNewTime(m_rewindTime);
 
 	if (canCountDown)
@@ -219,6 +219,31 @@ void AZPlayer::timerTimelineFinishedCallback()
 		if(IsValid(rewindComp.Get()))
 			ICharacterActions::Execute_TimerStopped(rewindComp, m_rewindTime);
 
+}
+
+void AZPlayer::ChangeTimerLimit(float newTimeLimit)
+{
+	endTimerTimeline();
+
+	m_timeLimit = newTimeLimit;
+	m_rewindTime = 0.f;
+	timerTimeline->SetNewTime(0.f);
+
+	if (timeRewindComponent->IsRewinding())
+	{
+		for (auto rewindComp : UAC_TimeRewind::GetAllTimeRewindComponents())
+			if (IsValid(rewindComp.Get()))
+				ICharacterActions::Execute_TimeRewind(rewindComp, false, m_rewindTime);
+
+		m_isDiving = (GetCharacterMovement()->IsFalling()) ? m_isDiving : false;
+
+		ICharacterActions::Execute_TimeRewind(GetMesh()->GetAnimInstance(), false, 0.f);
+	}
+
+
+	UAC_TimeRewind::resetTimeRewind(UAC_TimeRewind::GetAllTimeRewindComponents());
+	
+	startTimerTimeline(false);
 }
 
 float AZPlayer::GetRewindTimeAsFloat()
