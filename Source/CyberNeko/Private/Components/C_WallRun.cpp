@@ -5,6 +5,7 @@
 
 #include <GameFramework/Character.h>
 #include <GameFramework/CharacterMovementComponent.h>
+#include "../../Public/Characters/ZPlayer.h"
 
 #define IsValidWallRuNVec(vec) (vec.Z >= -0.52f && vec.Z <= 0.52f)
 
@@ -39,7 +40,14 @@ void UC_WallRun::Initialize(ACharacter* character)
 
 void UC_WallRun::updateWallRun()
 {
-	if (m_isWallRunSuppressed) return;
+	if (m_isWallRunSuppressed)
+		return;
+
+	if (AZPlayer* player = dynamic_cast<AZPlayer*>(m_character))
+	{
+		if (!player->HasAbilityFlag(EAbilityFlags::CanWallRun) || player->IsDiving())
+			return;
+	}
 
 	bool isOnWall = wallRunMovement(m_character->GetActorLocation(),
 		getEndVector(1), -1.f);

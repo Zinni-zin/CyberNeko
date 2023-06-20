@@ -34,6 +34,18 @@ public:
 		float playRate = 1.f;
 };
 
+UENUM()
+enum EAbilityFlags
+{
+	None         = 1,
+	CanJump      = 1 << 1,
+	CanSprint    = 1 << 2,
+	CanDive      = 1 << 3,
+	CanWallRun   = 1 << 4,
+	CanSlowTime  = 1 << 5,
+	CanSpeedTime = 1 << 6
+};
+
 UCLASS()
 class CYBERNEKO_API AZPlayer : public ACharacter, public ICharacterActions
 {
@@ -66,12 +78,39 @@ public:
 	UFUNCTION(BlueprintPure, BlueprintInternalUseOnly)
 		inline float GetRewindTime() const { return m_rewindTime; }
 
+	UFUNCTION(BlueprintCallable)	
+		inline float getRewindTimeLimit() const { return m_timeLimit; }
+
+	UFUNCTION(BlueprintPure, BlueprintInternalUseOnly)
+		int GetAbilityFlags() const { return m_abilityFlags; }
+
 	inline bool IsSwingingForward() const {	return isSwingingForward; }
 	
 	inline bool IsSwingingBackward() const { return isSwingingBackward; }
 
 	inline bool IsOnRightWall() const { return wallRunComp->IsOnRightWall(); }
 	inline bool IsOnLeftWall() const { return wallRunComp->IsOnLeftWall(); }
+
+	/* Flag Functions */
+
+	UFUNCTION(BlueprintCallable)
+		void SetAbilityFlag(EAbilityFlags flag) { m_abilityFlags |= (int)flag; }
+
+	UFUNCTION(BlueprintCallable)
+		void ChangeAbilityFlag(int abilityFlags = 1) { m_abilityFlags = abilityFlags; }
+
+	UFUNCTION(BlueprintCallable)
+		void RemoveAbilityFlag(EAbilityFlags flag) { m_abilityFlags &= ~(int)flag; }
+
+	UFUNCTION(BlueprintCallable)
+		void FlipAbilityFlag(EAbilityFlags flag) { m_abilityFlags ^= (int)flag; }
+
+	UFUNCTION(BlueprintCallable)
+		bool HasAbilityFlag(EAbilityFlags flag)
+	{
+		return (m_abilityFlags & (int)flag) == (int)flag;
+	}
+
 
 protected:
 	/* ---- Movement ---- */
@@ -118,12 +157,17 @@ protected:
 	UFUNCTION(BlueprintCallable)
 		float GetRewindTimeAsFloat();
 
-	// Resets time rewind objects and timer, then sets a new time limit
+	UFUNCTION(BlueprintCallable)
+		void ResetTimeRewind();
+
+	// Changes the time rewind, time limit
 	UFUNCTION(BlueprintCallable)
 		void ChangeTimerLimit(float newTimeLimit);
+	
 
 	UFUNCTION()
 		void Event_OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
 
 	/* Interface Implemnatations */
 
@@ -197,6 +241,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Time")
 		float m_timeLimit = 3.f;
+
+	/* Flags */
+
+	UPROPERTY(BlueprintGetter = GetAbilityFlags)
+	int m_abilityFlags = 0;
+	
 
 	/* Components */
 

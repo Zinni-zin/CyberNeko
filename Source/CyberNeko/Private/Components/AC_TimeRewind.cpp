@@ -20,11 +20,6 @@ UAC_TimeRewind::UAC_TimeRewind()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-UAC_TimeRewind::~UAC_TimeRewind()
-{
-	
-}
-
 // Called when the game starts
 void UAC_TimeRewind::BeginPlay()
 {
@@ -35,7 +30,7 @@ void UAC_TimeRewind::BeginPlay()
 
 void UAC_TimeRewind::OnComponentDestroyed(bool bDestroyingHierarchy)
 {
-	// Super::OnComponentDestroyed(bDestroyingHierarchy);
+	Super::OnComponentDestroyed(bDestroyingHierarchy);
 	m_rewindComponents.Remove(this);
 }
 

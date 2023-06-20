@@ -221,11 +221,10 @@ void AZPlayer::timerTimelineFinishedCallback()
 
 }
 
-void AZPlayer::ChangeTimerLimit(float newTimeLimit)
+void AZPlayer::ResetTimeRewind()
 {
 	endTimerTimeline();
 
-	m_timeLimit = newTimeLimit;
 	m_rewindTime = 0.f;
 	timerTimeline->SetNewTime(0.f);
 
@@ -242,8 +241,13 @@ void AZPlayer::ChangeTimerLimit(float newTimeLimit)
 
 
 	UAC_TimeRewind::resetTimeRewind(UAC_TimeRewind::GetAllTimeRewindComponents());
-	
 	startTimerTimeline(false);
+}
+
+void AZPlayer::ChangeTimerLimit(float newTimeLimit)
+{
+	m_timeLimit = newTimeLimit;
+	ResetTimeRewind();
 }
 
 float AZPlayer::GetRewindTimeAsFloat()

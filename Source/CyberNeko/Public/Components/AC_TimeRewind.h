@@ -53,9 +53,7 @@ class CYBERNEKO_API UAC_TimeRewind : public UActorComponent, public ICharacterAc
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	UAC_TimeRewind();
-	~UAC_TimeRewind();
 
 protected:
 	// Called when the game starts
