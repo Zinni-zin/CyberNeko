@@ -7,21 +7,18 @@
 #include <GameFramework/CharacterMovementComponent.h>
 #include "../../Public/Characters/ZPlayer.h"
 
-#define IsValidWallRuNVec(vec) (vec.Z >= -0.52f && vec.Z <= 0.52f)
+#define IsValidWallRunVec(vec) (vec.Z >= -0.52f && vec.Z <= 0.52f)
 
-// Sets default values for this component's properties
 UC_WallRun::UC_WallRun()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-// Called when the game starts
 void UC_WallRun::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
-// Called every frame
 void UC_WallRun::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -115,17 +112,22 @@ bool UC_WallRun::wallRunMovement(FVector start, FVector end, float direction)
 	GetWorld()->LineTraceSingleByChannel(hit, start, end, ECC_Visibility, traceParams);
 	// DrawDebugLine(GetWorld(), start, end, FColor::Red, false, 1.f);
 
-	if (!hit.bBlockingHit) return false;
-	
+	if (!hit.bBlockingHit)
+		return false;
+
+	/*
+	if (!hit.GetActor()->ActorHasTag(FName(TEXT("Wall Runnable"))))
+		return false;
+	*/
+
 	FVector normal = hit.Normal;
 	
-	if (!m_movementComp->IsFalling() || !IsValidWallRuNVec(normal)) return false;
+	if (!m_movementComp->IsFalling() || !IsValidWallRunVec(normal)) return false;
 
 	m_wallRunNormal = normal;
 
 	FVector playerToWall = normal * (normal - m_character->GetActorLocation().Length());
 
-	// Stick to wall
 	m_character->LaunchCharacter(playerToWall, false, false);
 
 	float moveSpeed = direction * m_wallRunSpeed;
